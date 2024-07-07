@@ -1,70 +1,99 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import LoginComponent from "@/components/LoginComponent";
+import UserSvgComponent from "@/components/svgs/UserSvgComponents";
+import { Link } from "expo-router";
+import React, { useState } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  TouchableOpacity,
+} from "react-native";
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+  State,
+  TextInput,
+} from "react-native-gesture-handler";
+import SvgUri from "react-native-svg";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const { height } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const [translateY] = useState(new Animated.Value(height * 0.6));
+
+  const onGestureEvent = Animated.event(
+    [{ nativeEvent: { translationY: translateY } }],
+    { useNativeDriver: true }
+  );
+
+  const onHandlerStateChange = (event) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      let offsetY = event.nativeEvent.translationY;
+
+      Animated.spring(translateY, {
+        toValue: offsetY > height * 0.3 ? height * 0.6 : height * 0.4,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <ImageBackground
+          source={require("../../assets/images/bg2.png")}
+          style={styles.backgroundImage}
+        >
+          <View style={styles.logoSection}>
+            <Image
+              source={require("../../assets/images/Logo.png")}
+              style={styles.logoStyles}
+            />
+            <Text style={styles.text}>Sign In</Text>
+          </View>
+
+          <View style={styles.loginSection}>
+           <LoginComponent />
+          </View>
+        </ImageBackground>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  backgroundImage: {
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  text: {
+    color: "white",
+    fontSize: 24,
   },
+  logoSection: {
+    flex: 0.45, // 40% of the screen height
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoStyles: {
+    height: 40,
+    width: 220,
+  },
+  loginSection: {
+    // position: 'absolute',
+    // top: height * 0.6,
+    flex: 0.55,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+  }
 });
