@@ -1,36 +1,47 @@
-import { Stack, Tabs } from 'expo-router';
-import React from 'react';
-
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
+import { Redirect, Stack, Tabs } from 'expo-router';
+import React, {useEffect} from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import DashboardLayout from '';
-import Dashboad from './Dashboad';
+import { Drawer } from 'expo-router/drawer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomDrawer from '@/components/CustomDrawer';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    const checkUserData = async () => {
+      try {
+        const storedUserData = await AsyncStorage.getItem('userData');
+        if (!storedUserData) {
+         return <Redirect href="/login" />
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    checkUserData();
+  }, []);
+
   return (
-    // <Tabs
-    //   screenOptions={{
-    //     tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-    //     headerShown: false,
-    //   }}>
-    //   <Tabs.Screen
-    //     name="index"
-    //     options={{
-    //       title: 'Login',
-    //       tabBarIcon: ({ color, focused }) => (
-    //         <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-    //       ),
-    //     }}
-    //   />
-    // </Tabs>
-    <Stack screenOptions={{
-      headerShown: false, 
-    }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="dashboard" components={Dashboad} options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer drawerContent={(props) => <CustomDrawer {...props} />} screenOptions={{drawerHideStatusBarOnOpen : true }}>
+      <Drawer.Screen
+          name="setting" // This is the name of the page and must match the url from root
+          options={{
+            drawerLabel: 'Settings',
+            title: 'Settings',
+          }}
+        />
+        <Drawer.Screen
+          name="index" // This is the name of the page and must match the url from root
+          options={{
+            drawerLabel: 'Check-In',
+            title: 'Check-In',
+          }}
+        />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }
